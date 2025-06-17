@@ -1,0 +1,58 @@
+name: Diagnostic Check
+
+on:
+  workflow_dispatch:   
+
+jobs:
+  check-vars:
+    name: Verificar Variáveis Obrigatórias
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Verificar APP_ENV
+        id: check_app_env
+        run: |
+          if [ -z "${{ vars.APP_ENV }}" ] && [ -z "${{ env.APP_ENV }}" ] && [ -z "${{ secrets.APP_ENV }}" ]; then
+            echo "::error::Variável APP_ENV não está definida."
+            exit 1
+          else
+            echo "Variável APP_ENV definida."
+          fi
+
+      - name: Verificar API_KEY
+        id: check_api_key
+        run: |
+          if [ -z "${{ secrets.API_KEY }}" ]; then
+            echo "::error::Variável secreta API_KEY não está definida."
+            exit 1
+          else
+            echo "Variável secreta API_KEY definida."
+          fi
+
+      - name: Mensagem de diagnóstico
+        if: failure()
+        run: |
+          echo "::error::Diagnóstico falhou: variáveis obrigatórias ausentes."
+          echo "Por favor, configure APP_ENV nas variáveis do repositório e API_KEY nos Secrets."
+        continue-on-error: true
+
+  summary:
+    name: Resumo Diagnóstico
+    runs-on: ubuntu-latest
+    needs: check-vars
+
+    steps:
+      - name: Criar resumo diagnóstico
+        run: |
+          echo "## Resumo do Diagnóstico" >> summary.md
+          if [ "${{ needs.check-vars.result }}" == "success" ]; then
+            echo "Todas as variáveis obrigatórias estão definidas corretamente." >> summary.md
+          else
+            echo "⚠️ Variáveis obrigatórias ausentes." >> summary.md
+            echo "- Verifique se APP_ENV está configurada nas variáveis do repositório." >> summary.md
+            echo "- Verifique se API_KEY está configurada nos Secrets do repositório." >> summary.md
+            echo "- Corrija e reexecute o workflow." >> summary.md
+          fi
+
+      - name: Mostrar resumo no log
+        run: cat summary.md
