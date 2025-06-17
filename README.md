@@ -2,7 +2,8 @@
 
 ## CI Status
 
-![CI Status](https://github.com/jluizdevv/appmonitor-pipeline/actions/workflows/ci.yml/badge.svg)
+![CI Status](https://img.shields.io/github/actions/workflow/status/jluizdevv/appmonitor-pipeline/ci.yml?branch=main&label=CI)
+
 
 ---
 
