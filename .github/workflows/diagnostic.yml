@@ -1,7 +1,7 @@
 name: Diagnostic Check
 
 on:
-  workflow_dispatch:   
+  workflow_dispatch:
 
 jobs:
   check-vars:
